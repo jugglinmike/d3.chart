@@ -1,5 +1,18 @@
 "use strict";
 
+// Determine if the current environment satisfies d3.chart's requirements
+// for ECMAScript 5 compliance.
+var isES5 = (function() {
+	try {
+		Object.defineProperty({}, "test", {
+			get: function() { return true; }
+		});
+	} catch(err) {
+		return false;
+	}
+	return true;
+})();
+
 // extend
 // Borrowed from Underscore.js
 function extend(object) {
@@ -64,14 +77,105 @@ var transformCascade = function(instance, data) {
 	return data;
 };
 
-var Chart = function(selection) {
+// wrapData
+// Given a data point, return an object with customized accessors for each
+// of the chart's data attributes.
+var wrapDataImpls = {
+	ES5: function(dataPoint) {
+		if (typeof dataPoint !== "object") {
+			return dataPoint;
+		}
+		var dataProxy = Object.create(this._dataProxy);
+		dataProxy._dataPoint = dataPoint;
+
+		return dataProxy;
+	},
+	legacy: function(dataPoint) {
+		var dataProxy, key, getter, dataMapping;
+
+		if (typeof dataPoint !== "object") {
+			return dataPoint;
+		}
+		dataProxy = {};
+
+		dataMapping = this._dataMapping;
+
+		if (!dataMapping) {
+			this.dataAttrs.forEach(function(key) {
+				dataProxy[key] = dataPoint[key];
+			});
+		} else {
+			this.dataAttrs.forEach(function(key) {
+				getter = dataMapping[key];
+				if (getter) {
+					dataProxy[key] = getter.call(dataPoint);
+				} else {
+					dataProxy[key] = dataPoint[key];
+				}
+			}, this);
+		}
+
+		return dataProxy;
+	}
+};
+
+var wrapData = wrapDataImpls[ isES5 ? "ES5" : "legacy" ];
+
+var Chart = function(selection, chartOptions) {
 
 	this.base = selection;
+	this._dataMapping = chartOptions && chartOptions.dataMapping;
 	this._layers = {};
 	this._mixins = [];
 	this._events = {};
 
 	initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
+
+	// Skip data mapping initialization logic if the chart has explicitly
+	// opted out of that functionality (generally for performance reasons)
+	if (this._dataMapping !== false) {
+		createDataProxy.call(this);
+	}
+
+};
+
+// createDataProxy
+// Initialize a proxy object to facilitate data mapping
+var createDataProxy = function() {
+	var dataProxy = this._dataProxy = {};
+	var dataMapping = this._dataMapping;
+	var getters;
+
+	if (dataMapping) {
+		getters = {};
+		Object.keys(dataMapping).forEach(function(attr) {
+			getters[attr] = dataMapping[attr];
+		});
+	}
+
+	this.dataAttrs.forEach(function(attr) {
+		var customGetter = getters && getters[attr];
+		var getter;
+
+		if (customGetter) {
+			getter = function() {
+				return customGetter.call(this._dataPoint);
+			};
+		} else {
+			getter = function() {
+				return this._dataPoint[attr];
+			};
+		}
+
+		if (isES5) {
+			Object.defineProperty(dataProxy, attr, {
+				get: getter
+			});
+		} else {
+			dataProxy[attr] = getter;
+		}
+	}, this);
+
 };
 
 Chart.prototype.unlayer = function(name) {
@@ -129,7 +233,12 @@ Chart.prototype.mixin = function(chartName, selection) {
 
 Chart.prototype.draw = function(data) {
 
-	var layerName, idx, len;
+	var layerName, idx, len, wrappedData;
+
+	if (this._dataMapping !== false && data) {
+		wrappedData = data.map(wrapData, this);
+		data = wrappedData;
+	}
 
 	data = transformCascade.call(this, this, data);
 
@@ -217,7 +326,7 @@ Chart.prototype.trigger = function(name) {
 
 Chart.extend = function(name, protoProps, staticProps) {
 	var parent = this;
-	var child;
+	var child, dataAttrs;
 
 	// The constructor function for the new subclass is either defined by
 	// you (the "constructor" property in your `extend` definition), or
@@ -244,6 +353,12 @@ Chart.extend = function(name, protoProps, staticProps) {
 	// Set a convenience property in case the parent's prototype is needed
 	// later.
 	child.__super__ = parent.prototype;
+	// Inherit chart data attributes. This allows charts that derive from
+	// other charts to use the same attributes for data without
+	// compromising their ability to add additional attributes.
+	dataAttrs = child.prototype.dataAttrs || [];
+	dataAttrs.push.apply(dataAttrs, parent.prototype.dataAttrs || []);
+	child.prototype.dataAttrs = dataAttrs;
 
 	Chart[name] = child;
 	return child;
