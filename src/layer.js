@@ -66,9 +66,16 @@
 
 		bound = this.dataBind.call(this._base, data);
 
+		// Some layers may bind to data using `d3.selection#datum` (layers
+		// derived from d3.svg.line are a good example of this). In this case,
+		// there are no associated lifecycle selections, so we bail out early.
+		if (!bound) {
+			return;
+		}
+
 		// Although `bound instanceof d3.selection` is more explicit, it fails
 		// in IE8, so we use duck typing to maintain compatability.
-		d3Chart.assert(bound && bound.call === d3.selection.prototype.call,
+		d3Chart.assert(bound.call === d3.selection.prototype.call,
 			"Invalid selection defined by `Layer#dataBind` method.");
 		d3Chart.assert(bound.enter, "Layer selection not properly bound.");
 
