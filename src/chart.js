@@ -86,6 +86,11 @@ var wrapDataImpls = {
 			return dataPoint;
 		}
 		var dataProxy = Object.create(this._dataProxy);
+		if (dataPoint instanceof DataProxy) {
+			// TODO: Ensure that the data proxy inherits from both the data
+			// point and the instance's data proxy.
+			dataProxy = Object.create(dataPoint);
+		}
 		dataProxy._dataPoint = dataPoint;
 
 		return dataProxy;
@@ -96,6 +101,8 @@ var wrapDataImpls = {
 		if (typeof dataPoint !== "object") {
 			return dataPoint;
 		}
+		// TODO: Ensure that the legacy implementation also handles
+		// recursively-defined data proxies.
 		dataProxy = {};
 
 		dataMapping = this._dataMapping;
@@ -139,10 +146,15 @@ var Chart = function(selection, chartOptions) {
 
 };
 
+// We only need a basic object literal to use a data proxy, but instantiating
+// it with a custom constructor allows us to more intuitively detect instances
+// of data proxies in `wrapData`.
+function DataProxy() {}
+
 // createDataProxy
 // Initialize a proxy object to facilitate data mapping
 var createDataProxy = function() {
-	var dataProxy = this._dataProxy = {};
+	var dataProxy = this._dataProxy = new DataProxy();
 	var dataMapping = this._dataMapping;
 	var getters;
 
@@ -238,13 +250,10 @@ Chart.prototype.draw = function(data) {
 		if (typeof data.map === "function") {
 			wrappedData = data.map(wrapData, this);
 			data = wrappedData;
-		} /**
-			* We should also be doing doing this, but it breaks stuff.
-			* else {
-			*   wrappedData = wrapData.call(this, data);
-			*   data = wrappedData;
-			* }
-			*/
+		} else {
+			wrappedData = wrapData.call(this, data);
+			data = wrappedData;
+		}
 	}
 
 	data = transformCascade.call(this, this, data);
