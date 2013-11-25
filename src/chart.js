@@ -45,6 +45,7 @@
 		this.base = selection;
 		this._layers = {};
 		this._mixins = {};
+		this._demuxers = {};
 		this._events = {};
 
 		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
@@ -115,9 +116,42 @@
 		return chart;
 	};
 
+	/**
+	 * Register a function that modifies data before it is passed to a given
+	 * mixin chart.
+	 *
+	 * @param {String|Object} mixin As a string, the name of the mixin whose
+	 *  data is to be demultiplexed. As an object, a relation of mixin names to
+	 *  demultiplexing functions.
+	 * @param {Function|null} [demuxFn] When `mixin` is specified as a string,
+	 *  the demultiplexing function for the specified mixin. When null, any
+	 *  previously-set demultiplexing function will be unset.
+	 */
+	Chart.prototype.demux = function(mixinName, demuxFn) {
+		var demuxers;
+		if (typeof mixinName === "string") {
+			if (demuxFn === null) {
+				delete this._demuxers[mixinName];
+			} else {
+				this._demuxers[mixinName] = demuxFn;
+			}
+		} else {
+			demuxers = mixinName;
+			for (mixinName in demuxers) {
+				demuxFn = demuxers[mixinName];
+				if (demuxFn === null) {
+					delete this._demuxers[mixinName];
+				} else {
+					this._demuxers[mixinName] = demuxFn;
+				}
+			}
+		}
+		return this;
+	};
+
 	Chart.prototype.draw = function(data) {
 
-		var layerName, mixinName;
+		var layerName, mixinName, mixinData, demux;
 
 		data = this.transform(data);
 
@@ -126,7 +160,13 @@
 		}
 
 		for (mixinName in this._mixins) {
-			this._mixins[mixinName].draw(data);
+			demux = this._demuxers[mixinName];
+			if (demux) {
+				mixinData = demux.call(this, data);
+			} else {
+				mixinData = data;
+			}
+			this._mixins[mixinName].draw(mixinData);
 		}
 	};
 
