@@ -44,7 +44,7 @@
 
 		this.base = selection;
 		this._layers = {};
-		this._mixins = [];
+		this._mixins = {};
 		this._events = {};
 
 		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
@@ -96,17 +96,28 @@
 		return data;
 	};
 
-	Chart.prototype.mixin = function(chartName, selection, options) {
-		var Ctor = Chart[chartName];
-		var chart = new Ctor(selection, options);
+	/**
+	 * Register or retrieve a "mixin" Chart. The "mixin" chart's `draw` method
+	 * will be invoked whenever the containing chart's `draw` method is
+	 * invoked.
+	 *
+	 * @param {String} mixinName The name of the mixin
+	 * @param {Chart} [chart] The d3.chart to register as a mix in of this
+	 *  chart. When unspecified, this method will return the mixin previously
+	 *  registered with the specified `mixinName` (if any).
+	 */
+	Chart.prototype.mixin = function(mixinName, chart) {
+		if (arguments.length === 1) {
+			return this._mixins[mixinName];
+		}
 
-		this._mixins.push(chart);
+		this._mixins[mixinName] = chart;
 		return chart;
 	};
 
 	Chart.prototype.draw = function(data) {
 
-		var layerName, idx, len;
+		var layerName, mixinName;
 
 		data = this.transform(data);
 
@@ -114,8 +125,8 @@
 			this._layers[layerName].draw(data);
 		}
 
-		for (idx = 0, len = this._mixins.length; idx < len; idx++) {
-			this._mixins[idx].draw(data);
+		for (mixinName in this._mixins) {
+			this._mixins[mixinName].draw(data);
 		}
 	};
 
