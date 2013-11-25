@@ -1,6 +1,6 @@
 /*! d3.chart - v0.1.3
  *  License: MIT Expat
- *  Date: 2013-10-07
+ *  Date: 2013-11-24
  */
 (function(window, undefined) {
 
@@ -202,15 +202,6 @@ d3Chart.assert(typeof d3.version === "string" && d3.version.match(/^3/),
 	var d3 = window.d3;
 	var hasOwnProp = Object.hasOwnProperty;
 
-	var Surrogate = function(ctor) { this.constructor = ctor; };
-	var variadicNew = function(Ctor, args) {
-		var inst;
-		Surrogate.prototype = Ctor.prototype;
-		inst = new Surrogate(Ctor);
-		Ctor.apply(inst, args);
-		return inst;
-	};
-
 	// extend
 	// Borrowed from Underscore.js
 	function extend(object) {
@@ -301,11 +292,9 @@ d3Chart.assert(typeof d3.version === "string" && d3.version.match(/^3/),
 		return data;
 	};
 
-	Chart.prototype.mixin = function(chartName, selection) {
-		var args = Array.prototype.slice.call(arguments, 2);
-		args.unshift(selection);
-		var ctor = Chart[chartName];
-		var chart = variadicNew(ctor, args);
+	Chart.prototype.mixin = function(chartName, selection, options) {
+		var Ctor = Chart[chartName];
+		var chart = new Ctor(selection, options);
 
 		this._mixins.push(chart);
 		return chart;
@@ -445,7 +434,7 @@ d3Chart.assert(typeof d3.version === "string" && d3.version.match(/^3/),
 		return Chart.extend.apply(Chart, arguments);
 	};
 
-	d3.selection.prototype.chart = function(chartName) {
+	d3.selection.prototype.chart = function(chartName, options) {
 		// Without an argument, attempt to resolve the current selection's
 		// containing d3.chart.
 		if (arguments.length === 0) {
@@ -456,9 +445,7 @@ d3Chart.assert(typeof d3.version === "string" && d3.version.match(/^3/),
 		d3Chart.assert(ChartCtor, "No chart registered with name '" +
 			chartName + "'");
 
-		chartArgs = Array.prototype.slice.call(arguments, 1);
-		chartArgs.unshift(this);
-		return variadicNew(ChartCtor, chartArgs);
+		return new ChartCtor(this, options);
 	};
 
 	d3.selection.enter.prototype.chart = function() {
