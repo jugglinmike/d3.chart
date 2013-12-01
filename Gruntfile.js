@@ -11,6 +11,9 @@ module.exports = function(grunt) {
         "src/layer-extensions.js",
         "src/chart.js",
         "src/chart-extensions.js"
+      ],
+      libraries: [
+        "node_modules/datamap/src/datamap.js"
       ]
     },
     watch: {
@@ -34,6 +37,7 @@ module.exports = function(grunt) {
             d3Chart: true,
             Layer: true,
             Chart: true,
+            DataMap: true,
             variadicNew: true
           }
         },
@@ -83,7 +87,7 @@ module.exports = function(grunt) {
       },
       release: {
         files: {
-          "d3.chart.js": "<%= meta.srcFiles %>"
+          "d3.chart.js": ["<%= meta.libraries %>", "<%= meta.srcFiles %>"]
         }
       }
     },
