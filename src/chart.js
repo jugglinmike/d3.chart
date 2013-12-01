@@ -1,18 +1,5 @@
 "use strict";
 
-// Determine if the current environment satisfies d3.chart's requirements
-// for ECMAScript 5 compliance.
-var isES5 = (function() {
-	try {
-		Object.defineProperty({}, "test", {
-			get: function() { return true; }
-		});
-	} catch(err) {
-		return false;
-	}
-	return true;
-})();
-
 // extend
 // Borrowed from Underscore.js
 function extend(object) {
@@ -77,57 +64,6 @@ var transformCascade = function(instance, data) {
 	return data;
 };
 
-// wrapData
-// Given a data point, return an object with customized accessors for each
-// of the chart's data attributes.
-var wrapDataImpls = {
-	ES5: function(dataPoint) {
-		if (typeof dataPoint !== "object") {
-			return dataPoint;
-		}
-		var dataProxy = Object.create(this._dataProxy);
-		if (dataPoint instanceof DataProxy) {
-			// TODO: Ensure that the data proxy inherits from both the data
-			// point and the instance's data proxy.
-			dataProxy = Object.create(dataPoint);
-		}
-		dataProxy._dataPoint = dataPoint;
-
-		return dataProxy;
-	},
-	legacy: function(dataPoint) {
-		var dataProxy, key, getter, dataMapping;
-
-		if (typeof dataPoint !== "object") {
-			return dataPoint;
-		}
-		// TODO: Ensure that the legacy implementation also handles
-		// recursively-defined data proxies.
-		dataProxy = {};
-
-		dataMapping = this._dataMapping;
-
-		if (!dataMapping) {
-			this.dataAttrs.forEach(function(key) {
-				dataProxy[key] = dataPoint[key];
-			});
-		} else {
-			this.dataAttrs.forEach(function(key) {
-				getter = dataMapping[key];
-				if (getter) {
-					dataProxy[key] = getter.call(dataPoint);
-				} else {
-					dataProxy[key] = dataPoint[key];
-				}
-			}, this);
-		}
-
-		return dataProxy;
-	}
-};
-
-var wrapData = wrapDataImpls[ isES5 ? "ES5" : "legacy" ];
-
 var Chart = function(selection, chartOptions) {
 
 	this.base = selection;
@@ -141,52 +77,11 @@ var Chart = function(selection, chartOptions) {
 	// Skip data mapping initialization logic if the chart has explicitly
 	// opted out of that functionality (generally for performance reasons)
 	if (this._dataMapping !== false) {
-		createDataProxy.call(this);
-	}
-
-};
-
-// We only need a basic object literal to use a data proxy, but instantiating
-// it with a custom constructor allows us to more intuitively detect instances
-// of data proxies in `wrapData`.
-function DataProxy() {}
-
-// createDataProxy
-// Initialize a proxy object to facilitate data mapping
-var createDataProxy = function() {
-	var dataProxy = this._dataProxy = new DataProxy();
-	var dataMapping = this._dataMapping;
-	var getters;
-
-	if (dataMapping) {
-		getters = {};
-		Object.keys(dataMapping).forEach(function(attr) {
-			getters[attr] = dataMapping[attr];
-		});
-	}
-
-	this.dataAttrs.forEach(function(attr) {
-		var customGetter = getters && getters[attr];
-		var getter;
-
-		if (customGetter) {
-			getter = function() {
-				return customGetter.call(this._dataPoint);
-			};
-		} else {
-			getter = function() {
-				return this._dataPoint[attr];
-			};
+		this._datamap = new DataMap(this.dataAttrs);
+		if (this._dataMapping) {
+			this._datamap.map(this._dataMapping);
 		}
-
-		if (isES5) {
-			Object.defineProperty(dataProxy, attr, {
-				get: getter
-			});
-		} else {
-			dataProxy[attr] = getter;
-		}
-	}, this);
+	}
 
 };
 
@@ -247,13 +142,7 @@ Chart.prototype.draw = function(data) {
 	var layerName, idx, len, wrappedData;
 
 	if (this._dataMapping !== false && data) {
-		if (typeof data.map === "function") {
-			wrappedData = data.map(wrapData, this);
-			data = wrappedData;
-		} else {
-			wrappedData = wrapData.call(this, data);
-			data = wrappedData;
-		}
+		data = this._datamap.wrap(data);
 	}
 
 	data = transformCascade.call(this, this, data);
