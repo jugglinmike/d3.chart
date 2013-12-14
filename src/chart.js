@@ -268,7 +268,7 @@ Chart.extend = function(name, protoProps, staticProps) {
 	} else {
 		dataAttrs = [];
 	}
-	dataAttrs.push.apply(dataAttrs, parent.prototype.dataAttrs || []);
+	dataAttrs = dataAttrs.concat(parent.prototype.dataAttrs);
 	child.prototype.dataAttrs = dataAttrs;
 
 	Chart[name] = child;

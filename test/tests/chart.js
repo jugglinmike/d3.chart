@@ -196,6 +196,7 @@ suite("d3.chart", function() {
 					test("names are inherited from parent charts", function(done) {
 						d3.chart("DataAttrTestChart")
 							.extend("ExtendedDataAttrTestChart", {});
+
 						var chart = d3.select("#test")
 							.chart("ExtendedDataAttrTestChart");
 						chart.transform = function(wrappedData) {
