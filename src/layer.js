@@ -118,6 +118,10 @@
 				"Invalid selection defined for '" + eventName +
 				"' lifecycle event.");
 
+			if (selection.empty()) {
+				continue;
+			}
+
 			handlers = this._handlers[eventName];
 
 			if (handlers) {
