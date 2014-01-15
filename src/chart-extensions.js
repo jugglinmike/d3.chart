@@ -1,4 +1,9 @@
+define(function(require) {
 "use strict";
+var d3 = require("d3");
+var Chart = require("chart");
+var assert = require("assert");
+require("layer-extensions");
 
 /**
  * Create a new chart constructor or return a previously-created chart
@@ -42,7 +47,7 @@ d3.selection.prototype.chart = function(chartName, options) {
 		return this._chart;
 	}
 	var ChartCtor = Chart[chartName];
-	d3cAssert(ChartCtor, "No chart registered with name '" + chartName + "'");
+	assert(ChartCtor, "No chart registered with name '" + chartName + "'");
 
 	return new ChartCtor(this, options);
 };
@@ -53,3 +58,6 @@ d3.selection.enter.prototype.chart = function() {
 	return this._chart;
 };
 d3.transition.prototype.chart = d3.selection.enter.prototype.chart;
+
+return d3.chart;
+});

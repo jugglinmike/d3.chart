@@ -1,4 +1,9 @@
+define(function(require) {
 "use strict";
+
+var DataMap = require("../node_modules/datamap/src/datamap");
+var assert = require("assert");
+var hasOwnProp = Object.hasOwnProperty;
 
 // extend
 // Borrowed from Underscore.js
@@ -185,7 +190,7 @@ Chart.prototype.layer = function(name, selection, options) {
 			return this._layers[name];
 
 		} else {
-			d3cAssert(false, "When reattaching a layer, the second argument "+
+			assert(false, "When reattaching a layer, the second argument "+
 				"must be a d3.chart layer");
 		}
 	}
@@ -449,3 +454,6 @@ Chart.extend = function(name, protoProps, staticProps) {
 	Chart[name] = child;
 	return child;
 };
+
+return Chart;
+});

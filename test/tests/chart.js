@@ -1,3 +1,7 @@
+define(function(require) {
+var d3 = require("d3");
+require("layer-extensions");
+
 suite("d3.chart", function() {
 
 	suite("constructor", function() {
@@ -601,4 +605,5 @@ suite("d3.chart", function() {
 			});
 		});
 	});
+});
 });

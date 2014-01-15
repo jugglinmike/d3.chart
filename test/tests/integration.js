@@ -1,3 +1,8 @@
+define(function(require) {
+var d3 = require("d3");
+require("chart-extensions");
+require("layer-extensions");
+
 suite("integration", function() {
 
 	setup(function() {
@@ -117,4 +122,5 @@ suite("integration", function() {
 			});
 		});
 	});
+});
 });

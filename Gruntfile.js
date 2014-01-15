@@ -35,12 +35,8 @@ module.exports = function(grunt) {
           browser: true,
           globalstrict: true,
           globals: {
-            hasOwnProp: true,
-            d3: true,
-            d3cAssert: true,
-            Layer: true,
-            Chart: true,
-            DataMap: true
+            require: true,
+            define: true
           }
         },
         files: {
@@ -50,7 +46,8 @@ module.exports = function(grunt) {
       test: {
         options: {
           globals: {
-            d3: true,
+            define: true,
+            require: true,
             assert: true,
             setup: true,
             suiteSetup: true,
@@ -75,7 +72,8 @@ module.exports = function(grunt) {
     },
     mocha: {
       options: {
-        run: true
+        run: false,
+        log: true
       },
       src: ["test/index.html"]
     },

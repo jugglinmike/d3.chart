@@ -1,3 +1,7 @@
+define(function(require) {
+var d3 = require("d3");
+require("chart-extensions");
+
 suite("d3.layer", function() {
 	"use strict";
 
@@ -488,4 +492,5 @@ suite("d3.layer", function() {
 			});
 		});
 	});
+});
 });

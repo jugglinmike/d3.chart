@@ -7,6 +7,7 @@
 		<script src="lib/mocha.js"></script>
 		<script src="lib/assert.js"></script>
 		<script src="lib/sinon.js"></script>
+		<script src="lib/require.js"></script>
 		<script>
 			mocha.setup({
 				ui: 'tdd'
@@ -14,24 +15,28 @@
 		</script>
 		<link href="lib/mocha.css" rel="stylesheet"></link>
 		<title>d3.chart test suite</title>
-		<script src="lib/d3.v3.js"></script>
-		<script src="../node_modules/datamap/src/datamap.js"></script>
-		<script src="../src/init.js"></script>
-		<script src="../src/layer.js"></script>
-		<script src="../src/layer-extensions.js"></script>
-		<script src="../src/chart.js"></script>
-		<script src="../src/chart-extensions.js"></script>
-		<script src="tests/chart.js"></script>
-		<script src="tests/layer.js"></script>
-		<script src="tests/integration.js"></script>
+		<script>
+			require.config({
+				baseUrl: "../src",
+				paths: {
+					d3: "../test/lib/d3.v3",
+					tests: "../test/tests"
+				},
+				shim: {
+					d3: {
+						exports: "d3"
+					}
+				}
+			});
+		</script>
 	</head>
 	<body>
 		<div id="mocha"></div>
 		<div id="test"></div>
 		<script>
-			if (navigator.userAgent.indexOf('PhantomJS') === -1) {
+			require(["tests/chart", "tests/layer", "tests/integration"], function() {
 				mocha.run();
-			}
+			});
 		</script>
 	</body>
 </html>

@@ -1,4 +1,7 @@
+define(function(require) {
 "use strict";
+var d3 = require("d3");
+var Layer = require("layer");
 
 /**
  * Create a new layer on the d3 selection from which it is called.
@@ -31,3 +34,6 @@ d3.selection.prototype.layer = function(options) {
 
 	return this;
 };
+
+return d3.selection.prototype.layer;
+});
