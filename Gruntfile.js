@@ -77,41 +77,32 @@ module.exports = function(grunt) {
       },
       src: ["test/index.html"]
     },
-    concat: {
-      options: {
-        banner: "/*! <%= meta.pkg.name %> - v<%= meta.pkg.version %>\n" +
-          " *  License: <%= meta.pkg.license %>\n" +
-          " *  Date: <%= grunt.template.today('yyyy-mm-dd') %>\n" +
-          " */\n(function(window) {\n",
-        footer: "})(this);"
-      },
-      release: {
-        files: {
-          "d3.chart.js": ["<%= meta.libraries %>", "<%= meta.srcFiles %>"]
-        }
-      }
-    },
-    uglify: {
-      options: {
-        // Preserve banner
-        preserveComments: "some",
-        sourceMap: "d3.chart.min.map"
-      },
-      release: {
-        files: {
-          "d3.chart.min.js": "d3.chart.js"
-        }
-      }
+    requirejs: {
+		compile: {
+			options: {
+				baseUrl: "src",
+				name: "chart-extensions",
+				paths: {
+					"d3": "../test/lib/d3.v3"
+				},
+				excludeShallow: ["d3"],
+				optimize: "none",
+				out: "d3.chart.js",
+				useStrict: true,
+				onBuildWrite: function(moduleName, path, contents) {
+					return require("amdclean").clean(contents);
+				}
+			}
+		}
     }
   });
 
   grunt.loadNpmTasks("grunt-contrib-jshint");
-  grunt.loadNpmTasks("grunt-contrib-concat");
-  grunt.loadNpmTasks("grunt-contrib-uglify");
+  grunt.loadNpmTasks("grunt-contrib-requirejs");
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-mocha");
 
   grunt.registerTask("test", ["mocha"]);
   grunt.registerTask("default", ["jshint", "test"]);
-  grunt.registerTask("release", ["default", "concat", "uglify"]);
+  grunt.registerTask("release", ["default", "requirejs"]);
 };
