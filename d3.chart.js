@@ -319,7 +319,7 @@ var chart = function (require, node_modules_datamap_src_datamap, assert) {
             return child;
         };
         return Chart;
-    }({}, node_modules_datamap_src_datamap, assert);
+    }({}, DataMap, assert);
 var layer = function (require, d3, assert) {
         'use strict';
         var d3 = d3;
