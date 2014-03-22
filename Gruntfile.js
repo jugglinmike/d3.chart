@@ -69,11 +69,27 @@ module.exports = function(grunt) {
         }
       }
     },
+    connect: {
+      server: {
+        options: {
+          port: 8888,
+          base: '.'
+        }
+      }
+    },
     mocha: {
+      test: {
+        options: {
+          run: true,
+          urls: ['http://localhost:8888/test/index.html']
+        }
+      }
+    },
+    instrument: {
+      files: 'src/**/*.js',
       options: {
-        run: true
-      },
-      src: ["test/index.html"]
+        basePath: 'test/instrumented'
+      }
     },
     concat: {
       options: {
@@ -107,7 +123,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-concat");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-contrib-connect");
   grunt.loadNpmTasks("grunt-mocha");
+  grunt.loadNpmTasks("grunt-istanbul");
 
   grunt.registerTask("test", ["mocha"]);
   grunt.registerTask("default", ["jshint", "test"]);
