@@ -202,6 +202,24 @@ Chart.prototype.attach = function(attachmentName, chart) {
 };
 
 /**
+ * A "hook" method that you may define to modify input data before it is used
+ * to draw the chart's layers and attachments. This method will be used by all
+ * sub-classes (see {@link transformCascade} for details).
+ *
+ * Note you will most likely never call this method directly, but rather
+ * include it as part of a chart definition, and then rely on d3.chart to
+ * invoke it when you draw the chart with {@link Chart#draw}.
+ *
+ * @param {Array} data Input data provided to @link Chart#draw}.
+ *
+ * @returns {mixed} Data to be used in drawing the chart's layers and
+ *                  attachments.
+ */
+Chart.prototype.transform = function(data) {
+	return data;
+};
+
+/**
  * Update the chart's representation in the DOM, drawing all of its layers and
  * any "attachment" charts (as attached via {@link Chart#attach}).
  *
