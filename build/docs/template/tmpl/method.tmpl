@@ -87,4 +87,17 @@ var self = this;
         <h5>Example<?js= examples.length > 1? 's':'' ?></h5>
         <?js= this.partial('examples.tmpl', examples) ?>
     <?js } ?>
+
+    <?js if (data.externalExamples) { ?>
+        <?js data.externalExamples.forEach(function(example) { ?>
+            <div class="codeblock"><textarea name="codehelper" class="code" mode="" <?js
+              if (example.isRunnable) {
+              ?>runnable="true" showConsole="true" buttons="run,reset,clear"<?js
+              } else {
+              ?>showConsole="false" buttons="none"'<?js
+              }?> autorun="" callbacks-clear="" callbacks-reset="" callbacks-run=""><?js=
+              example.src
+            ?></textarea></div>
+        <?js }) ?>
+    <?js } ?>
 </dd>
