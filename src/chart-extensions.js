@@ -18,6 +18,7 @@
  *
  * @static
  * @memberof d3
+ * @externalExample {runnable} chart
  *
  * @param {String} name If no other arguments are specified, return the
  *        previously-created chart with this name.
@@ -39,6 +40,8 @@ d3.chart = function(name) {
 /**
  * Instantiate a chart or return the chart that the current selection belongs
  * to.
+ *
+ * @externalExample {runnable} selection-chart
  *
  * @param {String} [chartName] The name of the chart to instantiate. If the
  *        name is unspecified, this method will return the chart that the
