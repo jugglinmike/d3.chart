@@ -384,7 +384,7 @@ Chart.prototype.trigger = function(name) {
  * "overrides" for the default chart instance methods. Allows for basic
  * inheritance so that new chart constructors may be defined in terms of
  * existing chart constructors. Based on the `extend` function defined by
- * {@link http://backbonejs.org/|Backbone.js}.
+ * [Backbone.js](http://backbonejs.org/).
  *
  * @static
  *

@@ -5,7 +5,8 @@ module.exports = function(grunt) {
 		docs: {
 			src: ["src/*.js"],
 			options: {
-				destination: "docs"
+				destination: "docs",
+				configure: "build/docs/jsdoc-config.json"
 			}
 		}
 	});

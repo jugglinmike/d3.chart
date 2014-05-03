@@ -1,14 +1,13 @@
 "use strict";
 
 /**
- * A namespace defined by [the D3.js library]{@link http://d3js.org/}. The
- * d3.chart API is defined within this namespace.
+ * A namespace defined by [the D3.js library](http://d3js.org/). The d3.chart
+ * API is defined within this namespace.
  * @namespace d3
  */
 
 /**
- * A constructor function defined by [the D3.js library]{@link
- * http://d3js.org/}.
+ * A constructor function defined by [the D3.js library](http://d3js.org/).
  * @constructor d3.selection
  * @memberof d3
  */
