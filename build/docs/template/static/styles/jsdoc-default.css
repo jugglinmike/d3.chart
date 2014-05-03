@@ -87,7 +87,7 @@ nav ul {
 }
 
 nav h2 a, nav h2 a:visited {
-    color: #A35A00;
+    color: #009b67;
     text-decoration: none;
 }
 
@@ -100,15 +100,15 @@ nav li {
 }
 
 nav a {
-    color: #5C5954;
+    color: #009b67;
 }
 
 nav a:visited {
-    color: #5C5954;
+    color: #009b67;
 }
 
 nav a:active {
-    color: #5C5954;
+    color: #009b67;
 }
 
 footer {
@@ -151,7 +151,7 @@ h4
 	letter-spacing: -0.01em;
 	margin-top: 16px;
 	margin: 18px 0 3px 0;
-	color: #A35A00;
+	color: #009b67;
 }
 
 h5, .container-overview .subsection-title
@@ -255,7 +255,7 @@ h6
 }
 
 .params .name, .props .name, .name code {
-	color: #A35A00;
+	color: #009b67;
 	font-family: Consolas, 'Lucida Console', Monaco, monospace;
 	font-size: 100%;
 }
