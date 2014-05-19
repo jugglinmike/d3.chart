@@ -7,7 +7,7 @@ module.exports = function(grunt) {
 			options: {
 				destination: "docs",
 				configure: "build/docs/jsdoc-config.json",
-				template: "build/docs/template"
+				template: "../jsdoc-template-miso/src"
 			}
 		}
 	});
